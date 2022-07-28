@@ -100,31 +100,31 @@ class Value:
 
 	def backward(self, initial=True):
 		if initial:
-			for var in reversed(self.deepwalk()):
-				var.backward(initial=False)
+			for value in reversed(self.deepwalk()):
+				value.backward(initial=False)
 		else:
 			self.grad_fn(self.grad)
 
 	def deepwalk(self):
-		vars_seen = set()
-		top_sort = []
+		seen = set()
+		operations_tree = []
 		self.grad = Value(1)
-		def _deepwalk(var):
-			var.grad = var.grad or Value(0)
-			if not var in vars_seen and var.grad_fn:
-				vars_seen.add(var)
-				for parent in var.parents:
+		def _deepwalk(value):
+			value.grad = value.grad or Value(0)
+			if not value in seen and value.grad_fn:
+				seen.add(value)
+				for parent in value.parents:
 					_deepwalk(parent)
-				top_sort.append(var)
+				operations_tree.append(value)
 		_deepwalk(self)
-		return top_sort
+		return operations_tree
 
 	def zero_grad(self):
 		self.grad = None
 
 	def __str__(self):
 		return f'Value({self.data}{", grad=" if self.grad else ""}'\
-                       f'{self.grad.data if self.grad else ""})'
+               f'{self.grad.data if self.grad else ""})'
 
 	def __repr__(self):
 		return str(self.data)
