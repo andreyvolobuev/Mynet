@@ -7,7 +7,7 @@ class Layer:
         self.activation = activation
 
     def parameters(self):
-        return [n.parameters() for n in self.neurons]
+        return [p for n in self.neurons for p in n.parameters()]
 
     def debatch(func):
         def wrapper(*args):
