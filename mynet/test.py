@@ -110,24 +110,20 @@ if __name__ == '__main__':
 	assert x.grad.data == 0.16666666666666666
 	assert y.data == 1.791759469228055
 
-
 	x = Value(6)
 	y = Value(3)
 	z = Value(1)
 	inputs_ = [x, y, z]
 	exp = [(i-max(inputs_)).exp() for i in inputs_]
 	softmax = [i / sum(exp) for i in exp]
-
 	a1, a2, a3 = exp
 	assert a1.data == 1.0
 	assert a2.data == 0.04978706836786395
 	assert a3.data == 0.006737946999085469
-
 	b1, b2, b3 = softmax
 	assert b1.data == 0.9464991225528936
 	assert b2.data == 0.047123416524664154
 	assert b3.data == 0.0063774609224422985
-
 	softmax[0].backward()
 	assert x.grad.data == -5.551115123125783e-17
 	assert y.grad.data == -0.044602272392289144

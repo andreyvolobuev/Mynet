@@ -1,13 +1,11 @@
 import math
 
 class Value:
-	__slots__ = ('data', 'parents', 'grad', 'grad_fn')
-
 	def __init__(self, data=None, parents=None, grad_fn=None):
 		self.data = data
-		self.parents = parents or []
-		self.grad = None
+		self.parents = parents
 		self.grad_fn = grad_fn
+		self.grad = None
 
 	def ensure_values(func):
 		def wrapper(*args):
@@ -21,39 +19,34 @@ class Value:
 
 	@ensure_values
 	def __mul__(self, other):
-		data = self.data * other.data
 		def MulBack(grad):
 			self.grad += grad * other.data
 			other.grad += self * grad
-		return Value(data=data, parents=[self, other], grad_fn=MulBack)
+		return Value(data=self.data*other.data, parents=[self, other], grad_fn=MulBack)
 
 	@ensure_values
 	def __add__(self, other):
-		data = self.data + other.data
 		def AddBack(grad):
 			self.grad += grad
 			other.grad += grad
-		return Value(data=data, parents=[self, other], grad_fn=AddBack)
+		return Value(data=self.data+other.data, parents=[self, other], grad_fn=AddBack)
 
 	@ensure_values
 	def __pow__(self, other):
-		data = self.data**other.data
 		def PowBack(grad):
 			self.grad += grad * other * self ** (other - 1)
-			other.grad += grad *self ** other
-		return Value(data=data, parents=[self, other], grad_fn=PowBack)
+			other.grad += grad * self ** other
+		return Value(data=self.data**other.data, parents=[self, other], grad_fn=PowBack)
 
 	def relu(self):
-		data = max(0, self.data)
 		def ReLUBack(grad):
 			self.grad += grad * (self > 0)
-		return Value(data=data, parents=[self], grad_fn=ReLUBack)
+		return Value(data=max(0, self.data), parents=[self], grad_fn=ReLUBack)
 
 	def log(self):
-		data = math.log(self.data)
 		def LogBack(grad):
 			self.grad += grad / self
-		return Value(data=data, parents=[self], grad_fn=LogBack)
+		return Value(data=math.log(self.data), parents=[self], grad_fn=LogBack)
 
 	def root(self, other=None):
 		other = other or Value(2)
