@@ -108,6 +108,15 @@ class Value:
 	def __hash__(self):
 		return id(self)
 
+	def __getstate__(self):
+		return self.data
+
+	def __setstate__(self, state):
+		self.data = state
+		self.parents = None
+		self.grad_fn = None
+		self.grad = None
+
 	def backward(self):
 		self.grad = Value(1)
 		for value in reversed(self.deepwalk()):

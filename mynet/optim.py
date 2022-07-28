@@ -1,5 +1,5 @@
 class Optim:
-	def __init__(self, parameters=parameters, lr=1):
+	def __init__(self, parameters, lr=1):
 		self.parameters = parameters
 		self.lr = lr
 

@@ -1,4 +1,5 @@
 from neuron import Neuron
+from collections.abc import Sequence
 
 
 class Layer:
@@ -10,10 +11,14 @@ class Layer:
         return [p for n in self.neurons for p in n.parameters()]
 
     def debatch(func):
-        def wrapper(*args):
-            if isinstance(args[-1][0], list):
-                return [wrapper(*args[:-1], i) for i in args[-1]]
-            return func(*args)
+        def wrapper(self, *args):
+            result = []
+            for elements in zip(*args):
+                if isinstance(elements[0][0], Sequence):
+                    result.append(*wrapper(self, *elements))
+                else:
+                    result.append(func(self, *elements))
+            return result
         return wrapper
 
     @debatch

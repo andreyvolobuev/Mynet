@@ -9,7 +9,7 @@ class Model(ABC):
 		pass
 
 	def _layers(self):
-		return [l for l in self.__dir__() if isinstance(getattr(self, l), Layer)]
+		return [getattr(self, l) for l in self.__dir__() if isinstance(getattr(self, l), Layer)]
 
 	def parameters(self):
 		return [p for l in self._layers() for p in l.parameters()]
