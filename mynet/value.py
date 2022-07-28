@@ -13,7 +13,7 @@ class Value:
 			args_ = []
 			for arg in args:
 				if not isinstance(arg, Value):
-					arg = Value(arg)
+					arg = Value(float(arg))
 				args_.append(arg)
 			return func(*args_)
 		return wrapper
