@@ -21,7 +21,3 @@ class Neuron:
         for i, j in zip(self.weights, X):
             result += i * j
         return result
-
-    @classmethod
-    def new(cls, weights, bias):
-        return cls(weights=[Value(w) for w in weights], bias=Value(bias))

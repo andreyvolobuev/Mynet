@@ -22,7 +22,3 @@ class Layer:
 
     def activate(self, n):
         return self.activation(n) if self.activation else n
-
-    @classmethod
-    def new(cls, neurons, activation):
-        return Layer(neurons=neurons, activation=activation)
