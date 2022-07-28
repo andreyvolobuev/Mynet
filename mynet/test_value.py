@@ -1,5 +1,6 @@
 from value import Value
 
+
 if __name__ == '__main__':
 	x = Value(8)
 	y = Value(3)
