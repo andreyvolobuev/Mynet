@@ -1,5 +1,3 @@
-from layer import Layer
-
 def MSELoss(y_target, y_pred):
     result = 0
     for y, y_ in zip(y_target, y_pred):
