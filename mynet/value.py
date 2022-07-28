@@ -1,3 +1,5 @@
+import math
+
 class Value:
 	def __init__(self, data=None, parents=None, grad_fn=None):
 		self.data = data
@@ -39,6 +41,25 @@ class Value:
 			other.grad += grad*self**other
 		return Value(data=data, parents=[self, other], grad_fn=PowBack)
 
+	def relu(self):
+		data = max(0, self.data)
+		def ReLUBack(grad):
+			self.grad += grad*(self > 0)
+		return Value(data=data, parents=[self], grad_fn=ReLUBack)
+
+	def log(self):
+		data = math.log(self.data)
+		def LogBack(grad):
+			self.grad += grad / self
+		return Value(data=data, parents=[self], grad_fn=LogBack)
+
+	def root(self, other=None):
+		other = other or Value(2)
+		return self**(1/other)
+
+	def exp(self):
+		return math.e**self
+
 	@ensure_values
 	def __gt__(self, other):
 		return self.data > other.data
@@ -53,7 +74,7 @@ class Value:
 
 	@ensure_values
 	def __rpow__(self, other):
-		return other ** self
+		return other**self
 
 	def __ipow__(self, other):
 		return self**other
@@ -91,33 +112,21 @@ class Value:
 	def __hash__(self):
 		return id(self)
 
-	def root(self, other=None):
-		other = other or Value(2)
-		return self**(1/other)
-
-	def exp(self):
-		return 2.718281828459045**self
-
-	def backward(self, initial=True):
-		if initial:
-			for value in reversed(self.deepwalk()):
-				value.backward(initial=False)
-		else:
-			self.grad_fn(self.grad)
+	def backward(self):
+		self.grad = Value(1)
+		for value in reversed(self.deepwalk()):
+			value.grad_fn(value.grad)
 
 	def deepwalk(self):
-		seen = set()
-		operations_tree = []
-		self.grad = Value(1)
+		path = []
 		def _deepwalk(value):
 			value.grad = value.grad or Value(0)
-			if not value in seen and value.grad_fn:
-				seen.add(value)
+			if value.grad_fn:
 				for parent in value.parents:
 					_deepwalk(parent)
-				operations_tree.append(value)
+				path.append(value)
 		_deepwalk(self)
-		return operations_tree
+		return path
 
 	def zero_grad(self):
 		self.grad = None

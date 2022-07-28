@@ -88,4 +88,26 @@ if __name__ == '__main__':
 	assert y == z
 	assert y is not z
 
+	x = Value(3)
+	y = Value(-2)
+	z = (x * y).relu()
+	z.backward()
+	assert x.grad.data == 0
+	assert y.grad.data == 0
+	assert z.data == 0
+
+	x = Value(5)
+	y = Value(-2)
+	z = (x + y).relu()
+	z.backward()
+	assert x.grad.data == 1
+	assert y.grad.data == 1
+	assert z.data == 3
+
+	x = Value(6)
+	y = x.log()
+	y.backward()
+	assert x.grad.data == 0.16666666666666666
+	assert y.data == 1.791759469228055
+
 	print('Looks good!')
