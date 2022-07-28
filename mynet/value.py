@@ -1,6 +1,8 @@
 import math
 
 class Value:
+	__slots__ = ('data', 'parents', 'grad', 'grad_fn')
+
 	def __init__(self, data=None, parents=None, grad_fn=None):
 		self.data = data
 		self.parents = parents or []
@@ -37,14 +39,14 @@ class Value:
 	def __pow__(self, other):
 		data = self.data**other.data
 		def PowBack(grad):
-			self.grad += grad*other*self**(other-1)
-			other.grad += grad*self**other
+			self.grad += grad * other * self ** (other - 1)
+			other.grad += grad *self ** other
 		return Value(data=data, parents=[self, other], grad_fn=PowBack)
 
 	def relu(self):
 		data = max(0, self.data)
 		def ReLUBack(grad):
-			self.grad += grad*(self > 0)
+			self.grad += grad * (self > 0)
 		return Value(data=data, parents=[self], grad_fn=ReLUBack)
 
 	def log(self):
@@ -55,10 +57,10 @@ class Value:
 
 	def root(self, other=None):
 		other = other or Value(2)
-		return self**(1/other)
+		return self ** (1 / other)
 
 	def exp(self):
-		return math.e**self
+		return math.e ** self
 
 	@ensure_values
 	def __gt__(self, other):
@@ -74,10 +76,10 @@ class Value:
 
 	@ensure_values
 	def __rpow__(self, other):
-		return other**self
+		return other ** self
 
 	def __ipow__(self, other):
-		return self**other
+		return self ** other
 
 	def __sub__(self, other):
 		return self + -other
@@ -89,10 +91,10 @@ class Value:
 		return -self + other
 
 	def __truediv__(self, other):
-		return self * other**-1
+		return self * other ** -1
 
 	def __rtruediv__(self, other):
-		return other * self**-1
+		return other * self ** -1
 
 	def __itruediv__(self, other):
 		return self / other
@@ -127,9 +129,6 @@ class Value:
 				path.append(value)
 		_deepwalk(self)
 		return path
-
-	def zero_grad(self):
-		self.grad = None
 
 	def __str__(self):
 		return f'Value({self.data}{", grad=" if self.grad else ""}'\
