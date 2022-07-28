@@ -5,7 +5,7 @@ class Value:
 		self.grad = None
 		self.grad_fn = grad_fn
 
-	def var_ops(func):
+	def ensure_values(func):
 		def wrapper(*args):
 			args_ = []
 			for arg in args:
@@ -15,7 +15,7 @@ class Value:
 			return func(*args_)
 		return wrapper
 
-	@var_ops
+	@ensure_values
 	def __mul__(self, other):
 		data = self.data * other.data
 		def MulBack(grad):
@@ -23,7 +23,7 @@ class Value:
 			other.grad += self * grad
 		return Value(data=data, parents=[self, other], grad_fn=MulBack)
 
-	@var_ops
+	@ensure_values
 	def __add__(self, other):
 		data = self.data + other.data
 		def AddBack(grad):
@@ -31,7 +31,7 @@ class Value:
 			other.grad += grad
 		return Value(data=data, parents=[self, other], grad_fn=AddBack)
 
-	@var_ops
+	@ensure_values
 	def __pow__(self, other):
 		data = self.data**other.data
 		def PowBack(grad):
@@ -39,22 +39,19 @@ class Value:
 			other.grad += grad*self**other
 		return Value(data=data, parents=[self, other], grad_fn=PowBack)
 
-	@var_ops
+	@ensure_values
 	def __gt__(self, other):
 		return self.data > other.data
 
-	@var_ops
+	@ensure_values
 	def __ge__(self, other):
 		return self.data >= other.data
 
-	@var_ops
+	@ensure_values
 	def __eq__(self, other):
 		return self.data == other.data
 
-	def __hash__(self):
-		return id(self)
-
-	@var_ops
+	@ensure_values
 	def __rpow__(self, other):
 		return other ** self
 
@@ -91,6 +88,9 @@ class Value:
 	def __rmul__(self, other):
 		return self * other
 
+	def __hash__(self):
+		return id(self)
+
 	def root(self, other=None):
 		other = other or Value(2)
 		return self**(1/other)
@@ -120,7 +120,7 @@ class Value:
 		return top_sort
 
 	def zero_grad(self):
-		self.grad = Value(0)
+		self.grad = None
 
 	def __str__(self):
 		return f'Value({self.data}{", grad=" if self.grad else ""}'\
