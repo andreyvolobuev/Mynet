@@ -1,6 +1,7 @@
 from value import Value
 import random
 
+
 class Neuron:
     def __init__(self, n_inputs=None, weights=None, bias=None):
         self.weights = weights or [Value(random.uniform(-1, 1)) for i in range(n_inputs)]

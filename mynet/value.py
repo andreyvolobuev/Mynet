@@ -1,5 +1,6 @@
 import math
 
+
 class Value:
 	def __init__(self, data=None, parents=None, grad_fn=None):
 		self.data = data
