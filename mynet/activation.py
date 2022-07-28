@@ -1,13 +1,8 @@
-import math
-from utils import debatch
+def ReLU(X):
+    return [x.relu() for x in X]
 
-@debatch
-def ReLU(y):
-    return [max(0, i) for i in y]
-
-@debatch
-def Softmax(y):
-    m = max(y)
-    exp = [math.e**(i-m) for i in y]
+def Softmax(X):
+    m = max(X)
+    exp = [(x-m).exp() for x in X]
     norm_base = sum(exp)
-    return [i / norm_base for i in exp]
+    return [x / norm_base for x in exp]
