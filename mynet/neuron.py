@@ -9,7 +9,7 @@ class Neuron:
 
     def parameters(self):
         return self.weights + [self.bias]
-        
+
     def forward(self, X):
         if len(X) != len(self.weights):
             raise TypeError(
