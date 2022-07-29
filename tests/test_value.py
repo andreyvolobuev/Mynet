@@ -1,4 +1,4 @@
-from value import Value
+from mynet.value import Value
 
 
 if __name__ == '__main__':
