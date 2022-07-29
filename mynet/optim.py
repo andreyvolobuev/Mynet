@@ -1,7 +1,10 @@
+from decimal import Decimal
+
+
 class Optim:
     def __init__(self, parameters, lr=1):
         self.parameters = parameters
-        self.lr = lr
+        self.lr = Decimal(lr)
 
     def zero_grad(self):
         for parameter in self.parameters:

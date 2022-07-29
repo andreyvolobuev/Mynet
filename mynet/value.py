@@ -1,9 +1,10 @@
 import math
+from decimal import Decimal
 
 
 class Value:
     def __init__(self, data=None, parents=None, grad_fn=None):
-        self.data = data
+        self.data = Decimal(data)
         self.parents = parents
         self.grad_fn = grad_fn
         self.grad = None
@@ -13,7 +14,7 @@ class Value:
             args_ = []
             for arg in args:
                 if not isinstance(arg, Value):
-                    arg = Value(float(arg))
+                    arg = Value(Decimal(arg))
                 args_.append(arg)
             return func(*args_)
         return wrapper
