@@ -1,5 +1,3 @@
-import math
-
 def ReLU(X):
     return [x.relu() for x in X]
 

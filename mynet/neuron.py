@@ -1,5 +1,6 @@
-from mynet.value import Value
 import random
+from collections.abc import Sequence
+from mynet.value import Value
 
 
 class Neuron:
@@ -11,6 +12,8 @@ class Neuron:
         return self.weights + [self.bias]
 
     def forward(self, X):
+        if not isinstance(X, Sequence):
+            X = [X]
         if len(X) != len(self.weights):
             raise TypeError(
                 "Length of the input data (%s) has to be equal "

@@ -1,22 +1,18 @@
 import math
-from decimal import Decimal
 
 
 class Value:
     def __init__(self, data=None, parents=None, grad_fn=None):
-        self.data = Decimal(data)
+        self.data = data
         self.parents = parents
         self.grad_fn = grad_fn
         self.grad = None
 
     def ensure_values(func):
         def wrapper(*args):
-            args_ = []
-            for arg in args:
-                if not isinstance(arg, Value):
-                    arg = Value(Decimal(arg))
-                args_.append(arg)
-            return func(*args_)
+            v1, v2 = args
+            if not isinstance(v2, Value): v2 = Value(v2)
+            return func(v1, v2)
         return wrapper
 
     @ensure_values
