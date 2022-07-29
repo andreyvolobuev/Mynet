@@ -120,10 +120,11 @@ class Value:
             value.grad_fn(value.grad)
 
     def deepwalk(self):
-        path = []
+        path, seen = [], set()
         def _deepwalk(value):
             value.grad = value.grad or Value(0)
-            if value.grad_fn:
+            if value.grad_fn and value not in seen:
+                seen.add(value)
                 for parent in value.parents:
                     _deepwalk(parent)
                 path.append(value)
