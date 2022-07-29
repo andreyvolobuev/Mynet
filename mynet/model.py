@@ -1,5 +1,5 @@
 import pickle
-from layer import Layer
+from mynet.layer import Layer
 from abc import ABC, abstractmethod
 
 

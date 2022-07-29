@@ -1,4 +1,4 @@
-from neuron import Neuron
+from mynet.neuron import Neuron
 from collections.abc import Sequence
 
 
