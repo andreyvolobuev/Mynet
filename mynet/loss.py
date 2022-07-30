@@ -6,9 +6,11 @@ def MSELoss(y_target, y_pred):
             count_operations += 1
     return sum_sq_err / count_operations
 
-def CrossEntropyLoss(y_target, y_pred):
-    loss = 0
-    for target, pred in zip(y_target, y_pred):
+
+def CrossEntropyLoss(targets, predictions, epsilon=1e-10):
+    log_sum, n_operations = 0, 0
+    for target, pred in zip(targets, predictions):
         target_idx = target.index(max(target))
-        loss += -pred[target_idx].log()
-    return loss
+        log_sum += (pred[target_idx] + epsilon).log()
+        n_operations += 1
+    return -log_sum / n_operations
