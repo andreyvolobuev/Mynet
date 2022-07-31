@@ -40,10 +40,12 @@ class Value:
             other.grad += grad * self ** other
         return Value(data=self.data**other.data, parents=[self, other], grad_fn=PowBack)
 
-    def relu(self):
-        def ReLUBack(grad):
-            self.grad += grad * (self > 0)
-        return Value(data=max(0, self.data), parents=[self], grad_fn=ReLUBack)
+    @ensure_values
+    def max(self, other):
+        def MaxBack(grad):
+            self.grad = grad * (self > other)
+            other.grad = grad * (other > self)
+        return Value(data=max(self.data, other.data), parents=[self, other], grad_fn=MaxBack)
 
     def log(self):
         def LogBack(grad):
