@@ -9,6 +9,10 @@ class Value:
         self.grad = None
 
     def ensure_values(func):
+        """ 
+        Decorator that ensures that values used in  math operations
+        are instances of Value class
+        """
         def wrapper(*args):
             v1, v2 = args
             if not isinstance(v2, Value): v2 = Value(v2)
@@ -106,20 +110,27 @@ class Value:
         return id(self)
 
     def __getstate__(self):
+        """ Used by pickle to get state for serializing the value """
         return self.data
 
     def __setstate__(self, state):
+        """ Used by pickle to set state for deserializing the value """
         self.data = state
         self.parents = None
         self.grad_fn = None
         self.grad = None
 
     def backward(self):
+        """
+        Calculate derivative of each value in the path of math operations
+        that lead to the current Value
+        """
         self.grad = Value(1)
         for value in reversed(self.deepwalk()):
             value.grad_fn(value.grad)
 
     def deepwalk(self):
+        """ Returns path of math operations that lead to the Value """
         path, seen = [], set()
         def _deepwalk(value):
             value.grad = value.grad or Value(0)

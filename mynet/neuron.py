@@ -1,6 +1,6 @@
 import random
 from collections.abc import Sequence
-from mynet.value import Value
+from mynet import Value
 
 
 class Neuron:
@@ -9,9 +9,15 @@ class Neuron:
         self.bias = bias or Value(0)
 
     def parameters(self):
+        """ Returns list of weights plus the bias of the neuron """
         return self.weights + [self.bias]
 
     def forward(self, X):
+        """
+        Multiply each value in the input data elementwise with each weight of the neuron,
+        add the products togeather and add the neuron's bias.
+        y = X*w + b
+        """
         if not isinstance(X, Sequence):
             X = [X]
         if len(X) != len(self.weights):
