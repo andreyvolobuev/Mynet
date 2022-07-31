@@ -1,4 +1,4 @@
-from mynet.value import Value
+from mynet import Value
 
 
 if __name__ == '__main__':
@@ -126,7 +126,7 @@ if __name__ == '__main__':
     assert b2.data == 0.047123416524664154
     assert b3.data == 0.0063774609224422985
     softmax[0].backward()
-    assert x.grad.data == -5.551115123125783e-17
+    assert x.grad.data == 0.05063853355949614
     assert y.grad.data == -0.044602272392289144
     assert z.grad.data == -0.006036261167207002
 
