@@ -5,13 +5,14 @@ from abc import ABC, abstractmethod
 class Optim(ABC):
     @abstractmethod
     def __init__(self, *args, **kwargs):
-        pass
+        """ Each optimizer has it's own way of initialization """
 
     @abstractmethod
     def step(self):
-        pass
+        """ You have to implement the step method as it is what makes the optimizer """
 
     def zero_grad(self):
+        """ Value accumulates gradients so it's important to reset them before calling step """
         for parameter in self.parameters:
             parameter.grad = None
 
@@ -22,11 +23,14 @@ class GradientDecent(Optim):
         self.lr = lr
 
     def step(self):
+        """ Simple optimizer updates the parameters by gradient times the learning rate """
         for parameter in self.parameters:
             parameter.data -= self.lr * parameter.grad.data 
 
 
 class Adam(Optim):
+    """ Original paper: https://arxiv.org/abs/1412.6980 """
+
     def __init__(self, parameters, lr=0.01, beta1=0.9, beta2=0.999, epsilon=1e-8):
         self.parameters = parameters
         self.lr = lr
