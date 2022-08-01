@@ -4,7 +4,6 @@ def maximum(*X):
     X = list(X)
     while len(X) > 1:
         if not isinstance(X[0], Value): X[0] = Value(X[0])
-        # if not isinstance(X[1], Value): X[1] = Value(X[1])
         X[0] = X[0].max(X[1])
         X.pop(1)
     return X[0]
