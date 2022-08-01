@@ -22,7 +22,7 @@ class Value:
     @ensure_values
     def __mul__(self, other):
         def MulBack(grad):
-            self.grad += grad * other.data
+            self.grad += grad * other
             other.grad += self * grad
         return Value(data=self.data*other.data, parents=[self, other], grad_fn=MulBack)
 

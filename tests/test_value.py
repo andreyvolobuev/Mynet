@@ -1,4 +1,5 @@
 from mynet import Value
+from mynet import ReLU
 
 
 if __name__ == '__main__':
@@ -91,19 +92,19 @@ if __name__ == '__main__':
 
     x = Value(3)
     y = Value(-2)
-    z = (x * y).relu()
-    z.backward()
+    z = ReLU([x * y])
+    z[0].backward()
     assert x.grad.data == 0
     assert y.grad.data == 0
-    assert z.data == 0
+    assert z[0].data == 0
 
     x = Value(5)
     y = Value(-2)
-    z = (x + y).relu()
-    z.backward()
+    z = ReLU([x + y])
+    z[0].backward()
     assert x.grad.data == 1
     assert y.grad.data == 1
-    assert z.data == 3
+    assert z[0].data == 3
 
     x = Value(6)
     y = x.log()
