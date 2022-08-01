@@ -3,7 +3,7 @@ import mynet
 
 class Model(mynet.Model):
     def __init__(self):
-        self.l1 = mynet.Layer(1, 3, activation=mynet.ReLU)
+        self.l1 = mynet.Layer(1, 3, activation=mynet.relu)
         self.l2 = mynet.Layer(3, 1)
         self.optim = mynet.GradientDecent(self.parameters(), lr=0.1)
 
@@ -17,7 +17,7 @@ if __name__ == '__main__':
 
     for i in range(1001):
         y_pred = model.forward(X_train)
-        loss = mynet.MSELoss(y_pred, y_target)
+        loss = mynet.mse_loss(y_pred, y_target)
 
         if i % 10 == 0 and old_loss:
             assert loss < old_loss

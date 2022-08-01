@@ -1,5 +1,6 @@
 from mynet import Value
 
+
 def maximum(*X):
     X = list(X)
     while len(X) > 1:
@@ -8,13 +9,16 @@ def maximum(*X):
         X.pop(1)
     return X[0]
 
-def ReLU(X):
+
+def relu(X):
     return [maximum(x, 0) for x in X]
 
-def Sigmoid(X):
+
+def sigmoid(X):
     return [1/(1+(-x).exp()) for x in X]
 
-def Softmax(X):
+
+def softmax(X):
     m = max(X)
     exp = [(x-m).exp() for x in X]
     norm_base = sum(exp)
