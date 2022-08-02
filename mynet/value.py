@@ -9,10 +9,7 @@ class Value:
         self.grad = None
 
     def ensure_values(func):
-        """ 
-        Decorator that ensures that values used in  math operations
-        are instances of Value class
-        """
+        """ Ensure both values used in math operations are instances of Value class """
         def wrapper(*args):
             v1, v2 = args
             if not isinstance(v2, Value): v2 = Value(v2)
