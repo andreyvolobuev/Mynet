@@ -11,6 +11,7 @@ def test_rmul():
     assert y.grad.data == -8
     assert z.data == -20
 
+
 def test_mul():
     x = Value(8)
     y = Value(3)
@@ -20,12 +21,14 @@ def test_mul():
     assert y.grad.data == 8
     assert z.data == 20
 
+
 def test_pow():
     x = Value(5)
     z = 4*x**3
     z.backward()
     assert x.grad.data == 300
     assert z.data == 500
+
 
 def test_div():
     x = Value(3)
@@ -35,6 +38,7 @@ def test_div():
     assert x.grad.data == 1
     assert y.grad.data == -0.75
     assert f.data == 3
+
 
 def test_complicated():
     x = Value(2)
@@ -47,6 +51,7 @@ def test_complicated():
     assert z.grad.data == -1.25
     assert f.data == 5
 
+
 def test_super_complicated():
     x = Value(-2)
     y = Value(3.5)
@@ -57,6 +62,7 @@ def test_super_complicated():
     assert y.grad.data == -5.512755102040816
     assert z.grad.data == 0.5
     assert f.data == 43.519642857142856
+
 
 def test_root():
     x = Value(9)
@@ -71,10 +77,12 @@ def test_root():
     assert x.grad.data == 0.03703703703703702
     assert f.data == 3
 
+
 def test_rdiv():
     x = Value(30)
     x /= 3
     assert x.data == 10
+
 
 def test_exp():
     x = Value(2)
@@ -98,6 +106,7 @@ def test_exp():
     assert y == z
     assert y is not z
 
+
 def test_relu():
     x = Value(3)
     y = Value(-2)
@@ -115,12 +124,14 @@ def test_relu():
     assert y.grad.data == 1
     assert z[0].data == 3
 
+
 def test_log():
     x = Value(6)
     y = x.log()
     y.backward()
     assert x.grad.data == 0.16666666666666666
     assert y.data == 1.791759469228055
+
 
 def test_softmax():
     x = Value(6)
