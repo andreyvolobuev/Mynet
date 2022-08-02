@@ -40,8 +40,8 @@ class Value:
     @ensure_values
     def max(self, other):
         def MaxBack(grad):
-            self.grad = grad * (self > other)
-            other.grad = grad * (other > self)
+            self.grad += grad * (self > other)
+            other.grad += grad * (other > self)
         return Value(data=max(self.data, other.data), parents=[self, other], grad_fn=MaxBack)
 
     def log(self):
