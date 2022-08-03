@@ -1,16 +1,7 @@
 import math
-from abc import ABC, abstractmethod
 
 
-class Optim(ABC):
-    @abstractmethod
-    def __init__(self, *args, **kwargs):
-        """ Each optimizer has it's own way of initialization """
-
-    @abstractmethod
-    def step(self):
-        """ You have to implement the step method as it is what makes the optimizer """
-
+class Optim:
     def zero_grad(self):
         """ Value accumulates gradients so it's important to reset them before calling step """
         for parameter in self.parameters:
@@ -37,15 +28,15 @@ class Adam(Optim):
         self.beta1 = beta1
         self.beta2 = beta2
         self.epsilon = epsilon
-        self.m_dy, self.v_dy, self.t = 0, 0, 0
+        self.m, self.v, self.t = 0, 0, 0
 
     def step(self):
         self.t += 1
         for parameter in self.parameters:
-            self.m_dy = self.beta1*self.m_dy + (1-self.beta1)*parameter.grad.data
-            self.v_dy = self.beta2*self.v_dy + (1-self.beta2)*(parameter.grad.data**2)
+            self.m = self.beta1*self.m + (1-self.beta1)*parameter.grad.data
+            self.v = self.beta2*self.v + (1-self.beta2)*(parameter.grad.data**2)
 
-            m_dy_ = self.m_dy/(1-self.beta1**self.t)
-            v_dy_ = self.v_dy/(1-self.beta2**self.t)
+            m_ = self.m/(1-self.beta1**self.t)
+            v_ = self.v/(1-self.beta2**self.t)
 
-            parameter.data = parameter.data - self.lr*(m_dy_/(math.sqrt(v_dy_)+self.epsilon))
+            parameter.data = parameter.data - self.lr*(m_/(math.sqrt(v_)+self.epsilon))
