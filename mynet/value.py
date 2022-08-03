@@ -61,8 +61,16 @@ class Value:
         return self.data > other.data
 
     @ensure_values
+    def __lt__(self, other):
+        return self.data < other.data
+
+    @ensure_values
     def __ge__(self, other):
         return self.data >= other.data
+
+    @ensure_values
+    def __le__(self, other):
+        return self.data <= other.data
 
     @ensure_values
     def __eq__(self, other):
