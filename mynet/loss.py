@@ -1,10 +1,13 @@
-def mse_loss(targets, predictions):
-    sum_sq_err, n_operations = 0, 0
+def sse_loss(targets, predictions):
+    sum_sq_err = 0
     for target, pred in zip(targets, predictions):
         for t, p in zip(target, pred):
             sum_sq_err += (t - p) ** 2
-            n_operations += 1
-    return sum_sq_err / n_operations
+    return sum_sq_err
+
+
+def mse_loss(targets, predictions):
+    return sse_loss(targets, predictions) / len(targets)
 
 
 def cross_entropy_loss(targets, predictions, epsilon=1e-10):
