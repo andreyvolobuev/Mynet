@@ -167,7 +167,7 @@ So in out case `the squared error` or `the loss` will be as follows:
 
 
 
-## Optimization
+## Understanding the loss
 
 Here starts the most interesting part. When we know the loss (**1.73**), how can we use that value in order to make our Model to give better predictions? If you recall from a high-school class again, the graph of a square function (and our `Sum of the squared error` is indeed a square function) is a porabola. Look at the picture:  
 ![Derivative on porabola](derivative.jpg "Derivative on porabola")
@@ -199,49 +199,7 @@ There it is. We now have all of our Model parameters inside of an equasion. We j
 
 If this equasion AND ESPECIALLY IT'S DERIVATIVE freaks you out - you're not alone. Luckily here's when our old friend calculus comes into play. It tells us that according to `the chain rule` we don't need to take a derivative of this monster. What we can do instead is to break the equasion down into small pieces and take derivatives of them and them multiply those derivatives togeather.
 
-Let's do this. First, let's break the equasion down into parts that consist of math operations that were made in order for us to come to this equasion.
-
-The first one (or actually it was the last one according to the math operations order, but we'll go and start from the end) is POWER OPERATION. We take what is inside the parantesis to the power of 2.
-
-1. POWER
-> (y - (max(0, X * w1 + b1) * w3 + max(0, X * w2 + b2) * w4 + b3))`**`2
-
-
-2. SUBSTRACTION
-> y `-` (max(0, X * w1 + b1) * w3 + max(0, X * w2 + b2) * w4 + b3)
-
-
-3. ADDITION
-> max(0, X * w1 + b1) * w3 + max(0, X * w2 + b2) * w4 `+ b3`
-
-
-4. ADDITION
-> max(0, X * w1 + b1) * w3 `+` max(0, X * w2 + b2) * w4
-
-
-5. MULTIPLICATION
-> max(0, X * w1 + b1) `*` w3
-
-6. MAXIMUM
-> `max`(0, X * w1 + b1)
-
-7. ADDITION
-> X * w1 `+` b1
-
-8. MULTIPLICATION
-> X `*` w1
-
-9. MULTIPLICATION
-> max(0, X * w2 + b2) `*` w4
-
-10. MAXIMUM
-> `max`(0, X * w2 + b2)
-
-11. ADDITION
-> X * w2 `+` b2
-
-12. MULTIPLICATION
-> X `*` w2
+![Math operations tree](loss_decomposed.png "Math operations tree")
 
 
 Now when we have broke down the monster-equasion into tiny math operations, we can easily take derivative of each one of them sequentially and multiply each new operation's derivative by it's parents derivative:
@@ -323,3 +281,8 @@ derivative of b3 is -2.63
 
 Just to ensure that I did now just make up those values out of nowhere, let's test our math with [pytorch](https://github.com/pytorch/pytorch):
 ![Torch same results](torch_compare_results.png "Torch shows same results")
+
+
+
+## Automatic differentiation 
+
