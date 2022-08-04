@@ -105,4 +105,59 @@ def relu(X):
     return [maximum(x, 0) for x in X]
 ```
 
+After we `activate` our Neuron with ReLU it's graph is no longer a straight line:  
 
+![ReLU](relu.png "ReLU")
+
+The `activated` result is then returned to the Model's forward method and is either passed through another Layer's forward method or returned to the user as Model's output result.  
+
+
+## Calculating the loss
+
+Let's make up some imaginary numbers and pretend we just did a forward pass. As mentioned earlier, out simple Model has two layers. First Layer has two Neurons with one weight and one bias each. Let's call then w1, w2, b1 and b2. Second Layer has one Neuron with two weights and one bias. They are called w3, w4 and b3.
+```
+w1 = -0.11
+w2 = 0.21
+w3 = 0.89
+w4 = -0.75
+b1 = 0
+b2 = 0
+b3 = 0
+```
+*Don't forget that this are randomly initialized values, except for biases that are usually initialized at 0*
+
+Out imaginary input (usualy denoted with **X**) will be 2.0. It means nothing be we can pretend that there's a point behind. What if let's say the X means the number of candies that we gave to our daughter and we expect our Model to tell us how many candies will she share with her brother.
+
+When we do the forward pass through the first Layer it's going to output something like this:
+
+First Neuron of the first Layer will output:
+> X * w1 + b1 == 2.0 * -0.11 + 0 == -0.22  
+> Let's call it **x1**
+
+Second Neuron of the first Layer will output
+> X * w2 + b2 == 2.0 * 0.21 + 0 == 0.42  
+> Let's call it **x2**
+
+Now we need to `activate` **x1** and **x2** with relu.
+> max(0, **x1**) == max(0, -0.22) == 0  
+> Let's call it **a1** (like activated1)  
+>  
+> max(0, **x2**) == max(0, 0.42) == 0.42
+> Let's call it **a2** (like activated2)
+
+The second Layer comes into play. The input for this Layer will be not the original value **X** (2.0), but the activated output from the first Layer **a1** and **a2** (0 and 0.42). Recall that it has only one Neuron but with two weights so it will multiply each weight with the corresponding input, sum the products togeather and add the bias.
+
+> a1 * w3 + a2 * w4 + b3 == 0 * 0.89 + 0.42 * -0.75 + 0 == 0 + -0.315 + 0 == -0.315  
+
+This is our Model's final **output** (or prediction). But is it good or is it bad? If it is bad then how bad is it? Is there a way to tell how wrong our Model actually is?
+
+Well, there is a way. We did actually gave our daughter two candies and she shared one with her brother so the output of our Model should have been 1 instead of -0.315. We can calculate squared difference of the actually observed value (1) and the predicted value (-0.315). It's called `Sum of the squared error loss` and it's implemented inside [mynet/loss.py](https://github.com/andreyvolobuev/mynet/blob/master/mynet/loss.py).
+
+```
+def sse_loss(targets, predictions):
+    sum_sq_err = 0
+    for target, pred in zip(targets, predictions):
+        for t, p in zip(target, pred):
+            sum_sq_err += (t - p) ** 2
+    return sum_sq_err
+```
