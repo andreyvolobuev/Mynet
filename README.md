@@ -116,13 +116,13 @@ The `activated` result is then returned to the Model's forward method and is eit
 
 Let's make up some imaginary numbers and pretend we just did a forward pass. As mentioned earlier, out simple Model has two layers. First Layer has two Neurons with one weight and one bias each. Let's call then w1, w2, b1 and b2. Second Layer has one Neuron with two weights and one bias. They are called w3, w4 and b3.
 ```
-w1 = -0.11
-w2 = 0.21
-w3 = 0.89
-w4 = -0.75
-b1 = 0
-b2 = 0
-b3 = 0
+w1 = Value(-0.11)
+w2 = Value(0.21)
+w3 = Value(0.89)
+w4 = Value(-0.75)
+b1 = Value(0)
+b2 = Value(0)
+b3 = Value(0)
 ```
 *Don't forget that this are randomly initialized values, except for biases that are usually initialized at 0*
 
@@ -175,5 +175,151 @@ Here starts the most interesting part. When we know the loss (**1.73**), how can
 
 The parabola has it's minima - it's the point of smallest value of the function. And as it's a graph of a loss function, we need to find it's minima to minimize the loss (that's what we want, don't we?). Hope you're following. 
 
-In order to find the porabola's minima, we need to take the functions derivative in the current point, which is a slope of is the slope of the tangent line to the graph of the function at that point. The current point is **1.73** as it is the value of our loss function. So say it simple, if we find the derivative of the `Sum of the squared error` function in the current point (which as you recall is 1.73) we will find the direction in which we have to go to find the loss functions **minima** hence minimize it.
+In order to find the porabola's minima, we need to take the functions derivative in the current point with respect to the models parameters (weights and biases of all of the Models layers: w1, w2, w3, w4, b1, b2 and b3). The current point (value of the loss function) is **1.73** . 
 
+So say it simple, if we find the derivative of the `Sum of the squared error` function in the current point with respect to the Model's parameters it will give us a hint of how big or how small we have to modify the parameters and in which direction (plus or minus) in order for those parameters to produce the desired output which will result in the minimal value of the loss function (ideally 0).
+
+
+How to take derivative of the loss function with respect to the models parameters? 
+
+Our loss function is: `(y - PREDICTED_VALUE)**2`
+No Model's parameters in this equasion yet. Where are they? They are actually *inside* of the PREDICTED_VALUE, so let's break it down a bit
+
+> (y - (a1 * w3 + a2 * w4 + b3))**2
+
+Great! Here we get **w3**, **w4** and **b3**. But these are not all of the parameters. Let's get the rest. If you recall, **a1** is an activated output from the first Neuron of the first Layer, and **a2** is an activated output from the second Neuron of the first Layer, so let's substitute those values in the equasion:
+
+> (y - (max(0, **x1**) * w3 + max(0, **x2**) * w4 + b3))**2
+
+**x1** and **x2** are the outputs from the first Neuron of the first Layer and from the second Neuron of the first Layer respectively. Let's substitute them with the equasion inside of the Neurons:
+
+> (y - (max(0, X * w1 + b1) * w3 + max(0, X * w2 + b2) * w4 + b3))**2
+
+There it is. We now have all of our Model parameters inside of an equasion. We just have to take the derivate of this one with respect to the parameters and we'll be able to modify them in order to minimize the function, which in this case happens to be a loss function, which is exactly what we want to minimize (I hope I have already stressed this enough times).
+
+If this equasion AND ESPECIALLY IT'S DERIVATIVE freaks you out - you're not alone. Luckily here's when our old friend calculus comes into play. It tells us that according to `the chain rule` we don't need to take a derivative of this monster. What we can do instead is to break the equasion down into small pieces and take derivatives of them and them multiply those derivatives togeather.
+
+Let's do this. First, let's break the equasion down into parts that consist of math operations that were made in order for us to come to this equasion.
+
+The first one (or actually it was the last one according to the math operations order, but we'll go and start from the end) is POWER OPERATION. We take what is inside the parantesis to the power of 2.
+
+1. POWER
+> (y - (max(0, X * w1 + b1) * w3 + max(0, X * w2 + b2) * w4 + b3))`**`2
+
+
+2. SUBSTRACTION
+> y `-` (max(0, X * w1 + b1) * w3 + max(0, X * w2 + b2) * w4 + b3)
+
+
+3. ADDITION
+> max(0, X * w1 + b1) * w3 + max(0, X * w2 + b2) * w4 `+ b3`
+
+
+4. ADDITION
+> max(0, X * w1 + b1) * w3 `+` max(0, X * w2 + b2) * w4
+
+
+5. MULTIPLICATION
+> max(0, X * w1 + b1) `*` w3
+
+6. MAXIMUM
+> `max`(0, X * w1 + b1)
+
+7. ADDITION
+> X * w1 `+` b1
+
+8. MULTIPLICATION
+> X `*` w1
+
+9. MULTIPLICATION
+> max(0, X * w2 + b2) `*` w4
+
+10. MAXIMUM
+> `max`(0, X * w2 + b2)
+
+11. ADDITION
+> X * w2 `+` b2
+
+12. MULTIPLICATION
+> X `*` w2
+
+
+Now when we have broke down the monster-equasion into tiny math operations, we can easily take derivative of each one of them sequentially and multiply each new operation's derivative by it's parents derivative:
+
+
+1. First we have an operation of taking difference between the **observed value** (1) and the **predicted value** (-0.315) to the power of 2. It is achieved by moving the power to the front of the equation and subtracting the power by 1.
+> f'(SSE LOSS) = 2 * (y - PREDICTED_VALUE) == 2 * (1 - -0.315) = 2 * 1.315 = 2.63  
+
+
+2. Next there's subtraction of the **predicted value** (-0.315) from the **observed value** (1). As the observed value has no term for the predicted value we treat it as a constant and the derivative of a constant is always 0. The predicted value is treated as a single variable and it's derivative is 1. Lastly we multiply the derivative (-1) by previous operation's derivative and get -2.63
+> f'(ERROR) = PARENT_DY * (0 - PREDICTED_VALUE) = 2.63 * (0 - 1) = -2.63  
+
+
+3. Derivative of addition is almost identical to the derivative of subtraction. We treat terms addends that have no term for b3 as constants and treat b3 itself as 1. Lastly we multiply by previous derivative:
+> f'(b3) = PARENT_DY * (a1*w3 + a2*w4 + b3) = -2.63 * (0 + 0 + 1) = -2.63  
+> NOTE: At this point we already know the derivative of the first parameter of our model: **b3**, and it's value is **-2.63**  
+
+4. Addition again: product of a1 and w3 is added to product of a2 and w4. If we solve for the derivative with respect to a1*w3 then we treat it as 1 and a2*w4 is treated as 0 and vise versa. The result is again multiplied by the previous derivative:
+> f'(a1*w3) = PARENT_DY * (a1*w3 + a2*w4) = -2.63 * (1 + 0) = -2.63  
+> f'(a2*w4) = PARENT_DY * (a1*w3 + a2*w4) = -2.63 * (0 + 1) = -2.63  
+
+
+5. When solving for derivative of multiplication of a1 and w2 with respect to a1 we just treat a1 as 1 and the other variable is unchanged. *Do I have to again write down that we multiply the result by the previous derivative?*
+> f'(a1) = PARENT_DY * 1 * w3 = -2.63 * 0.89 = -2.3407  
+
+
+6. Multiplication again, just the derivative with respect to w3 this time. We treat w3 as 1 and the other variable is unchanged. Multiply the result derivative by the previous derivative again...
+> f'(w3) = PARENT_DY * 1 * a1 = -2.63 * 0 = 0  
+> Hurray! We've got the derivative of the second parameter of out Model: **w3**'s deirivative is **0**  
+
+
+7. Derivative of ReLU activation function is either 0 or 1 (multiplied by the previous derivative)
+> f'(x1) = PARENT_DY * max(0, x1) = -2.3407 * 0 = 0  
+
+
+8. We've done addition before: just treat our target variable as 1 and the other one as 0 (don't forget to multiply by you know what...)
+> f'(b1) = PARENT_DY * (0 + 1) = PARENT_DY * 1 = 0 * 1 = 0  
+> One more parameter's derivative has just been found: **b1**'s derivative is **0**  
+
+
+9. Multiplication again. We're solving for derivative with respect to w1, so w1 becomes 1 and the other variable remains unchanged. The result is multiplied by child's derivative:
+> f'(w1) = PARENT_DY * (X * w1) = 0 * X = 0 * 2 = 0  
+> We have just found derivative of **w1** which is **0**  
+
+
+10. Here starts another branch of derivative solving. Please consider previous step to be #4. So we do the same thing as in the step #5 but with respect to a2 instead of a1.
+> f'(a2) = PARENT_DY * 1 * w4 = -2.63 * -0.75 = 1.9725  
+
+
+11. Same as step #6 but with respect to w4  
+> f'(w4) = PARENT_DY * 1 * a2 = -2.63 * 0.42 = -1.1046  
+> Look at you! We've solved one more: derivative of **w4** is **-1.1046**  
+
+
+12. Derivative of ReLU activation function is either 0 or 1 (multiplied by the previous derivative)  
+> f'(x2) = PARENT_DY * max(0, x2) = 1.9725 * 1 = 1.9725  
+
+
+13. Same as step #8 but with respect to b2  
+> f'(b2) = PARENT_DY * (0 + 1) = 1.9725 * 1 = 1.9725  
+> Note: Derivative of **b2** is **1.9725**  
+
+
+14. Same as step #9 but with respect to w2
+> f'(w2) = PARENT_DY * X * w2 = PARENT_DY * X = 1.9725 * 2 = 3.945  
+> Note: Derivative of **w2** is **3.945**  
+
+
+So for now we have a derivative for each value in our Model's parameters:
+```
+derivative of w1 is 0
+derivative of w2 is 3.945
+derivative of w3 is 0
+derivative of w4 is -1.1046
+derivative of b1 is 0
+derivative of b2 is 1.9725
+derivative of b3 is -2.63
+```
+
+Just to ensure that I did now just make up those values out of nowhere, let's test our math with [pytorch](https://github.com/pytorch/pytorch):
+![Torch same results](torch_compare_results.png "Torch shows same results")
