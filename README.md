@@ -151,7 +151,7 @@ The second Layer comes into play. The input for this Layer will be not the origi
 
 This is our Model's final **output** (or prediction). But is it good or is it bad? If it is bad then how bad is it? Is there a way to tell how wrong our Model actually is?
 
-Well, there is a way. We did actually gave our daughter two candies and she shared one with her brother so the output of our Model should have been 1 instead of -0.315. We can calculate squared difference of the actually observed value (1) and the predicted value (-0.315). It's called `Sum of the squared error loss` and it's implemented inside [mynet/loss.py](https://github.com/andreyvolobuev/mynet/blob/master/mynet/loss.py).
+Well, there is a way. We did actually gave our daughter two candies and she shared one with her brother so the output of our Model should have been 1 instead of -0.315. We can calculate squared difference of the actually observed value (usually denoted with **y**) and the predicted value (-0.315). It's called `Sum of the squared error` and it's implemented inside [mynet/loss.py](https://github.com/andreyvolobuev/mynet/blob/master/mynet/loss.py).
 
 ```
 def sse_loss(targets, predictions):
@@ -161,3 +161,19 @@ def sse_loss(targets, predictions):
             sum_sq_err += (t - p) ** 2
     return sum_sq_err
 ```
+
+So in out case `the squared error` or `the loss` will be as follows:
+> (**y** - **output**)**2 == (1 - -0.315)**2 == **1.73**  
+
+
+
+## Optimization
+
+Here starts the most interesting part. When we know the loss (**1.73**), how can we use that value in order to make our Model to give better predictions? If you recall from a high-school class again, the graph of a square function (and our `Sum of the squared error` is indeed a square function) is a porabola. Look at the picture:  
+![Derivative on porabola](derivative.jpg "Derivative on porabola")
+
+
+The parabola has it's minima - it's the point of smallest value of the function. And as it's a graph of a loss function, we need to find it's minima to minimize the loss (that's what we want, don't we?). Hope you're following. 
+
+In order to find the porabola's minima, we need to take the functions derivative in the current point, which is a slope of is the slope of the tangent line to the graph of the function at that point. The current point is **1.73** as it is the value of our loss function. So say it simple, if we find the derivative of the `Sum of the squared error` function in the current point (which as you recall is 1.73) we will find the direction in which we have to go to find the loss functions **minima** hence minimize it.
+
