@@ -1,13 +1,8 @@
 import pickle
 from mynet import Layer
-from abc import ABC, abstractmethod
 
 
-class Model(ABC):
-    @abstractmethod
-    def __init__(self, **kwargs):
-        """ Declare layers and optimizer here """
-
+class Model:
     def _layers(self):
         """ Returns layers of the model in order of their declaration """
         return [getattr(self, l) for l in self.__dir__() if isinstance(getattr(self, l), Layer)]
