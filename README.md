@@ -1,5 +1,5 @@
 # Mynet
-![Mynet fancy logo](fancy-image.jpg "Mynet logo")
+![Mynet fancy logo](images/fancy-image.jpg "Mynet logo")
 
 Education purposes library that will help you understand how neural networks work under the hood.
 
@@ -107,7 +107,7 @@ def relu(X):
 
 After we `activate` our Neuron with ReLU it's graph is no longer a straight line:  
 
-![ReLU](relu.png "ReLU")
+![ReLU](images/relu.png "ReLU")
 
 The `activated` result is then returned to the Model's forward method and is either passed through another Layer's forward method or returned to the user as Model's output result.  
 
@@ -170,7 +170,7 @@ So in out case `the squared error` or `the loss` will be as follows:
 ## Understanding the loss
 
 Here starts the most interesting part. When we know the loss (**1.73**), how can we use that value in order to make our Model to give better predictions? If you recall from a high-school class again, the graph of a square function (and our `Sum of the squared error` is indeed a square function) is a porabola. Look at the picture:  
-![Derivative on porabola](derivative.jpg "Derivative on porabola")
+![Derivative on porabola](images/derivative.jpg "Derivative on porabola")
 
 
 The parabola has it's minima - it's the point of smallest value of the function. And as it's a graph of a loss function, we need to find it's minima to minimize the loss (that's what we want, don't we?). Hope you're following. 
@@ -199,7 +199,7 @@ There it is. We now have all of our Model parameters inside of an equasion. We j
 
 If this equasion AND ESPECIALLY IT'S DERIVATIVE freaks you out - you're not alone. Luckily here's when our old friend calculus comes into play. It tells us that according to `the chain rule` we don't need to take a derivative of this monster. What we can do instead is to break the equasion down into small pieces and take derivatives of them and them multiply those derivatives together.
 
-![Math operations tree](loss_decomposed.png "Math operations tree")
+![Math operations tree](images/loss_decomposed.png "Math operations tree")
 
 
 This thing that looks like a tree is actually a DAG (directed acyclic graph). By just looking at it we can see how our loss got created as a result of small math operations (addition, subtraction, division, power, maximum). We easily can start from the top of the DAG (which is our loss) and slowly take the derivative of each math operation that lead to it. The chain rule says that we have to multiply each parent node derivative with it's child node's derivative. 
@@ -282,7 +282,7 @@ derivative of b3 is -2.63
 ```
 
 Let's test our calculations with [pytorch](https://github.com/pytorch/pytorch):
-![Torch same results](torch_compare_results.png "Torch shows same results")
+![Torch same results](images/torch_compare_results.png "Torch shows same results")
 
 
 
@@ -402,6 +402,5 @@ def __pow__(self, other):
 This is not entirely true because for example to subtract a value we have to multiply the subtrahend by -1 first and only then do summation with minuend. So it's two operations (multiplication and addition) instead of one. But for simplicity sake we'll leave it like this.
 
 
-
 So can we actually do the same math as we did by hand (and then repeated in pytorch) with Mynet? Yes, we can:
-![Mynet backward](mynet_backward.png "Mynet backward")
+![Mynet backward](images/mynet_backward.png "Mynet backward")
