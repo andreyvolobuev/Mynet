@@ -3,7 +3,7 @@
 
 Education purposes library that will help you understand how neural networks work under the hood.
 
-It is and always will be 100% dependency free, pure Python from scratch. All major components of neural networks (e.g. auto differentiation, loss functions, activation functions, optimizers) are implemented 😌 If you wish to add a new component – PR's are welcome 🙏🏻 If you found a bug in the code or you see that Mynet works incorrectly - please open an issue 👍
+It is and always will be 100% dependency free, pure Python from scratch. All major components of neural networks (e.g. auto differentiation, loss functions, activation functions, optimizers) are implemented 😌 If you wish to add a new component – PR's are welcome 🙏🏻 If you found a bug in the code or consider Mynet to work incorrectly - please open an issue 👍
 
 Absolutely not suitable for production as it's slow as hell and definitely won't be able to run a model playing StarCraft realtime. Instead it can run a relatively simple model and show you what is going on under the hood of ANY major deep learning framework as all of them are basically doing the same thing. That is the point.
 
@@ -57,7 +57,7 @@ class Neuron:
         self.weights = weights or [Value(random.uniform(-1, 1)) for i in range(n_inputs)]
         self.bias = bias or Value(0)
 ```
-Every Neuron is represented by weights and a bias. The weights is a vector (or list) of Values initialized with a random sample from a uniform distribution and the bias is a scalar Value initialized with just 0. So if we go up for a bit and look at the Layer once again, we'll see that the number of inputs to the Layer corresponds to the number of inputs for every Neuron in that Layer which in turn corresponds to the the number of weights that each Neuron has.   
+Every Neuron is represented by weights and a bias. The weights is a vector (or list) of Values initialized with a random sample from a uniform distribution and the bias is a scalar Value initialized with just 0. So if we go up for a bit and look at the Layer once again, we'll see that the number of inputs to the Layer corresponds to the number of inputs to every Neuron in that Layer which in turn corresponds to the the number of weights that each Neuron has.   
 Also the number of outputs of a Layer corresponds to the number of Neurons in that Layer.
 
 So in our simple example from the top a Model that has two Layers gets created:
@@ -402,5 +402,83 @@ def __pow__(self, other):
 This is not entirely true because for example to subtract a value we have to multiply the subtrahend by -1 first and only then do summation with minuend. So it's two operations (multiplication and addition) instead of one. But for simplicity sake we'll leave it like this.
 
 
-So can we actually do the same math as we did by hand (and then repeated in pytorch) with Mynet? Yes, we can:
+So can we actually do the same math as we did by hand (and then repeated in pytorch) with Mynet? Yes, indeed we can and we'll get exactly the same result:
 ![Mynet backward](images/mynet_backward.png "Mynet backward")
+
+
+## Optimizing the parameters
+So now, when we've calculated derivative for every parameter of our neural net, how can we use those derivatives to improve the performance of our model?
+
+There's an algorithm called Gradient Decent. Here it some pseudo-code for it:
+```
+model = Model(parameters=random)
+dataset = get_dataset()
+X, y = test_train_split(dataset)
+
+for n in range(N_EPOCH):
+    out = model.forward(X)
+    loss = calculate_loss(y, out)
+    loss.backward()
+
+    for parameter in model.parameters:
+        parameter = parameter - learning_rate * parameter.derivative
+        parameter.derivative = 0
+```
+
+As you can see we've already done everything up to the last 3 lines. We just need a way to subtract paraters derivative * learning_rate from each corresponding parameter. We'll get to the learning rate in a bit. Now let's focus on how to get all of the model parameters at one place. We start with [mynet/model.py](https://github.com/andreyvolobuev/mynet/blob/master/mynet/model.py). Model class actually has a method called parameters:  
+
+```
+def parameters(self):
+    return [p for l in self._layers() for p in l.parameters()]
+```
+
+All it does is just returns a list of whatever is returned by parameters() method of each Layer of the model. So let's look inside of[mynet/layer.py](https://github.com/andreyvolobuev/mynet/blob/master/mynet/layer.py) to see what it is:  
+
+```
+def parameters(self):
+    return [p for n in self.neurons for p in n.parameters()]
+```
+
+Unsurprisingly the Layer just does a proxy-call of parameter method of each neuron inside of it. Let's then look inside of [mynet/neuron.py](https://github.com/andreyvolobuev/mynet/blob/master/mynet/neuron.py) for the implementation:
+
+```
+def parameters(self):
+    return self.weights + [self.bias]
+```
+
+A-ha!  
+So when we call the parameters method of a Model it returns a list of weights and a bias of each Neuron inside of every Layer of that Model. The weights and biases are instances of Value so when we do the forward pass and then calculating the loss, the loss Value will keep track of all of its parent Values (including the model's parameters). So when we call the backward method on the loss - every parameter of the model will have it's gradient (or derivative) set automatically. We are just left to optimize the Values and for this theres another optimizer class defined in [mynet/optim.py](https://github.com/andreyvolobuev/mynet/blob/master/mynet/optim.py)
+
+```
+class GradientDecent(Optim):
+    def __init__(self, parameters, lr=1):
+        self.parameters = parameters
+        self.lr = lr
+
+    def step(self):
+        for parameter in self.parameters:
+            parameter.data -= self.lr * parameter.grad.data 
+```
+
+So in the initializer GradientDecent optimizer shall take a list of parameters to optimize and a learning_rate. The learning rate is called a hyperparameter. It's because it's the job of neural net operator to set it. Optimizer itself won't optimize it. The idea behing learning rate is that it sets the step size for the optimizer. If the step size is too large then the optimizer will quickly jump over the minima of the loss function (and as you recall the minima of the loss functions is where we want to eventually come, not jump it over). In the another case if the step size is too small then the optimizer will take much longer time to eventually get to the loss minima or it even might stuck on what is called a `local minima` (which is not the actual minima of the functon). So we need to set it carefully and if the things go not how we expect - then we just do it all over again.
+
+In the step method of the optimizer we just iterate over the parameters and subtract derivative of the parameter multiplied by the learning rate from the corresponding parameter data. As you may have noticed the GradientDecent is a subclass of Optim class. The Optim has only one method: zero_grad which iterates over the optim parameters and set's their derivatives to None. We need to do that because the gradients will accumulate with each forward pass and if we skip zeroing the grad we'll end up with incorrect steps that the optimizer shall take.
+
+```
+class Optim:
+    def zero_grad(self):
+        for parameter in self.parameters:
+            parameter.grad = None
+```
+
+Now let's try to transform our pseudo-code into real code and see how fast the Gradient Decent agorithm will converge (if ever?) to optimal values that will output 1 to the input of 2 (which means our daughter will share 1 candy with her brother IF given two candies herself)
+
+![Convergence](images/convergence.png "Convergence")
+
+It converges after 21 iteration and will always output 1 in case it's input is 2 and this is exactly what we wanted to achive. *Please note that I had to uglyfy the code a bit just because I wanted it to fit on one screen* 😂
+
+That is actually all there is to machine learning, deep learning and neural nets. They are just fancy names for bunch of static value multiplicatons and taking of derivatives. There's hardly any "soul" inside of those equasions and formulas. There's no need to be afraid that these numbers will eventually conquer the world and enslave the mankind. And it kind of feels good.
+
+Questions, Issues, Comments, etc. are welcome!
+
+avvolob@gmail.com
